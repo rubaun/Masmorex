@@ -24,28 +24,29 @@ public class OpenDoor : MonoBehaviour
         doorAnim = door.GetComponent<Animator>();
     }
 
-    public void DoorOpen(string name = "padrão")
+    public void DoorOpen()
     {
-        Debug.Log("Abrindo Porta");
         if (!open && isLocked)
         {
-                doorAnim.SetTrigger("OpenDoor");
-                doorAnim.SetBool("DoorOpen", true);
+            doorAnim.SetTrigger("OpenDoor");
+            doorAnim.SetBool("DoorOpen", true);
+            Debug.Log("Porta Trancada");
         }
         else if (!open && !isLocked)
         {
             doorAnim.SetBool("HasKey", true);
             doorAnim.SetTrigger("OpenDoor");
             doorAnim.SetBool("DoorOpen", true);
-            open = true;
+            Debug.Log("Abrindo Fechada");
         }
         else if(open)
         {
             doorAnim.SetBool("DoorOpen", false);
             doorAnim.SetTrigger("OpenDoor");
+            Debug.Log("Porta Aberta");
         }
 
-        
+        open = !open;
     }
 
     public bool HasKey(string name)

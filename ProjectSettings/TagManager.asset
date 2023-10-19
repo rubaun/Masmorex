@@ -11,6 +11,7 @@ TagManager:
   - Door
   - Key
   - Spikes
+  - Trap
   layers:
   - Default
   - TransparentFX

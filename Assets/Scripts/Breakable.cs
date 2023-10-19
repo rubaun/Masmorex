@@ -21,7 +21,12 @@ public class Breakable : MonoBehaviour
 
     public void LifeBreak(int hit)
     {
-        life -= hit; 
+        life -= hit;
+
+        if (life <= 0)
+        {
+            Break();
+        }
     }
 
     public int GetLifeBreak()
@@ -31,7 +36,6 @@ public class Breakable : MonoBehaviour
 
     public void Break()
     {
-        this.gameObject.SetActive(false);
         Destroy(this.gameObject);
     }
 }

@@ -9,7 +9,8 @@ public class OpenChest : MonoBehaviour
     [SerializeField]
     private List<GameObject> itens = new List<GameObject>();
     private Animator chestAnim;
-    private bool open = true;
+    [SerializeField]
+    private bool open = false;
 
     // Start is called before the first frame update
     void Start()
@@ -19,18 +20,20 @@ public class OpenChest : MonoBehaviour
 
     public void OpenChestDoor()
     {
-        Debug.Log("Abrindo Baú");
-
-        if(open)
+        if(!open)
         {
             chestAnim.SetBool("OpenChest", true);
+            Debug.Log("Abrindo Baú");
+            open = true;
         }
-        else
+        else if(open)
         {
             chestAnim.SetBool("OpenChest", false);
+            Debug.Log("Fechando Baú");
+            open = false;
         }
 
-        open = !open;
+        
 
     }
 
@@ -42,5 +45,10 @@ public class OpenChest : MonoBehaviour
     public void ChestClean()
     {
         itens.Clear();
+    }
+
+    public bool ChestOpened()
+    {
+        return open;
     }
 }
