@@ -10,11 +10,13 @@ public class PlayerTeste : MonoBehaviour
     private bool isOnGround;
     private bool isAttacking;
     private Vector3 angleRotation;
-    private bool isInteracting;
-    private bool acionar;
     private OpenChest chest;
     private OpenDoor door;
     private Breakable breakObj;
+    [SerializeField]
+    private int goldPlayer;
+    [SerializeField]
+    private bool isInteracting;
     [SerializeField]
     private int playerLife;
     [SerializeField]
@@ -39,15 +41,12 @@ public class PlayerTeste : MonoBehaviour
     void Update()
     {
         //Andar 
-        float fowardInput = Input.GetAxis("Vertical");
-        Vector3 moveDirection = transform.forward * fowardInput;
-        Vector3 moveFoward = rb.position + moveDirection * speed * Time.deltaTime;
-        rb.MovePosition(moveFoward);
+        Walk();
 
         //Rotacionar
-        float sideInput = Input.GetAxis("Horizontal");
-        Quaternion deltaRotation = Quaternion.Euler(angleRotation * sideInput * Time.deltaTime);
-        rb.MoveRotation(rb.rotation * deltaRotation);
+        Rotate();
+
+        AnimatePlayer();
 
         //Movimento e Animação do Pulo
         if (Input.GetKey(KeyCode.Space) && isOnGround)
@@ -113,7 +112,7 @@ public class PlayerTeste : MonoBehaviour
             Spikes actualSpike = other.GetComponent<Spikes>();
             int damage = actualSpike.Damage();
             Debug.LogFormat("Dano {0}", damage.ToString());
-            //playerLife -= actualSpike.SpikeDamage();
+            playerLife -= actualSpike.Damage();
         }
     }
 
@@ -178,9 +177,10 @@ public class PlayerTeste : MonoBehaviour
                     inventory.Add(item);
                 }
 
-                chest.ChestClean();
+                goldPlayer += chest.ChestGold();
             }
-            
+
+            chest.ChestClean();
         }
         
     }
@@ -217,6 +217,58 @@ public class PlayerTeste : MonoBehaviour
         if(Physics.Raycast(transform.position, transform.forward, out hit) && breakObj)
         {
             breakObj.LifeBreak(10);
+        }
+    }
+
+    private void Walk()
+    {
+        float fowardInput = Input.GetAxis("Vertical");
+        Vector3 moveDirection = transform.forward * fowardInput;
+        Vector3 moveFoward = rb.position + moveDirection * speed * Time.deltaTime;
+        rb.MovePosition(moveFoward);
+    }
+
+    private void Rotate()
+    {
+        float sideInput = Input.GetAxis("Horizontal");
+        Quaternion deltaRotation = Quaternion.Euler(angleRotation * sideInput * Time.deltaTime);
+        rb.MoveRotation(rb.rotation * deltaRotation);
+    }
+
+    private void AnimatePlayer()
+    {
+        if (Input.GetKey(KeyCode.W))
+        {
+            playerAnimator.SetBool("Walk", true);
+
+            if (Input.GetKey(KeyCode.W) && playerAnimator.GetBool("WalkBack"))
+            {
+                playerAnimator.SetBool("WalkToBack", true);
+            }
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            playerAnimator.SetBool("WalkBack", true);
+
+            if (Input.GetKey(KeyCode.S) && playerAnimator.GetBool("Walk"))
+            {
+                playerAnimator.SetBool("WalkToBack", false);
+            }
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            playerAnimator.SetBool("Walk", true);
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            playerAnimator.SetBool("Walk", true);
+        }
+        else
+        {
+            playerAnimator.SetBool("Walk", false);
+            playerAnimator.SetBool("WalkBack", false);
+            playerAnimator.SetBool("WalkToBack", false);
+
         }
     }
 }

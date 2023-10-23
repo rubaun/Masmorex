@@ -5,13 +5,21 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
     private Animator playerAnimator;
     private Rigidbody rb;
     private bool isOnGround;
     private bool isAttacking;
     private Vector3 angleRotation;
+    private OpenChest chest;
+    private OpenDoor door;
+    private Breakable breakObj;
+    [SerializeField]
+    private int goldPlayer;
+    [SerializeField]
     private bool isInteracting;
-    private bool acionar;
+    [SerializeField]
+    private int playerLife;
     [SerializeField]
     private float speed;
     [SerializeField]
@@ -27,64 +35,19 @@ public class PlayerController : MonoBehaviour
         playerAnimator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         angleRotation = new Vector3(0, 90, 0);
-        isInteracting = false;
-        acionar = false;
+        playerLife = 100;
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         //Andar 
-        float fowardInput = Input.GetAxis("Vertical");
-        Vector3 moveDirection = transform.forward * fowardInput;
-        Vector3 moveFoward = rb.position + moveDirection * speed * Time.deltaTime;
-        rb.MovePosition(moveFoward);
+        Walk();
 
         //Rotacionar
-        float sideInput = Input.GetAxis("Horizontal");
-        Quaternion deltaRotation = Quaternion.Euler(angleRotation * sideInput * Time.deltaTime);
-        rb.MoveRotation(rb.rotation * deltaRotation);
+        Rotate();
 
-        //Animação
-        if (Input.GetKey(KeyCode.W))
-        {
-            playerAnimator.SetBool("Walk", true);
-
-            if (Input.GetKey(KeyCode.W) && playerAnimator.GetBool("WalkBack"))
-            {
-                playerAnimator.SetBool("WalkToBack", true);
-            }
-        }
-        else if(Input.GetKey(KeyCode.S))
-        {
-            playerAnimator.SetBool("WalkBack", true);
-
-            if (Input.GetKey(KeyCode.S) && playerAnimator.GetBool("Walk"))
-            {
-                playerAnimator.SetBool("WalkToBack", false);
-            }
-        }
-        else if(Input.GetKey(KeyCode.A))
-        {
-            playerAnimator.SetBool("Walk", true);
-        }
-        else if(Input.GetKey(KeyCode.D))
-        {
-            playerAnimator.SetBool("Walk", true);
-        }
-        else
-        {
-            playerAnimator.SetBool("Walk", false);
-            playerAnimator.SetBool("WalkBack", false);
-            playerAnimator.SetBool("WalkToBack", false);
-            
-        }
-
-        if (Input.GetKey(KeyCode.E) && isInteracting)
-        {
-            playerAnimator.SetTrigger("Interact");
-            acionar = true;
-        }
+        AnimatePlayer();
 
         //Movimento e Animação do Pulo
         if (Input.GetKey(KeyCode.Space) && isOnGround)
@@ -92,12 +55,19 @@ public class PlayerController : MonoBehaviour
             JumpMove();
             JumpAnimation();
         }
-        
-        //Animação do ataque
-        if (Input.GetMouseButton(0) && isAttacking)
+
+        //Interagir
+        if (Input.GetKey(KeyCode.E) && isInteracting)
         {
-            //isAttacking = true;
-            PlayerAttack();
+            playerAnimator.SetTrigger("Interact");
+            InteractToChest();
+            InteractToDoor();
+        }
+
+        //Atacar
+        if (Input.GetMouseButtonDown(0) && isAttacking)
+        {
+            Attack();
         }
 
     }
@@ -109,97 +79,77 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("IsOnGround", true);
             isOnGround = true;
         }
-
-        if (collision.gameObject.CompareTag("Door"))
-        {
-            Debug.Log("Interagindo com a porta");
-            isInteracting = true;
-        }
-
-        if (collision.gameObject.CompareTag("Chest"))
-        {
-            Debug.Log("Interagindo com o baú");
-            isInteracting = true;
-        }
-
-        if(collision.gameObject.CompareTag("Breakable"))
-        {
-            Debug.Log("Interagindo com objeto quebrável");
-            isAttacking = true;
-        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Chest"))
         {
-            OpenChest openChest = other.GetComponent<OpenChest>();
             Debug.Log("Colide com Baú");
-
+            OpenChest actualChest = other.GetComponent<OpenChest>();
+            chest = actualChest;
             isInteracting = true;
-            Debug.LogFormat("isInteracting {0}",isInteracting);
-
-            if (isInteracting && acionar)
-            {
-                openChest.OpenChestDoor();
-
-                foreach(GameObject item in openChest.ItensInside())
-                {
-                    inventory.Add(item);
-                }
-
-                openChest.ChestClean();
-            }
-
-            isInteracting = false;
-            acionar = false;
         }
 
-        if(other.CompareTag("Door"))
+        if (other.CompareTag("Door"))
         {
-            OpenDoor openDoor = other.GetComponent<OpenDoor>();
-            Debug.Log("Colide Porta");
-            if(isInteracting)
-            {
-                Debug.Log("Tentando abrir porta");
-                openDoor.DoorOpen();
-
-                if(openDoor.DoorIsLocked())
-                {
-                    Debug.Log("Porta Trancada");
-                    foreach(GameObject item in inventory)
-                    {
-                        Debug.Log("Varrendo Inventário");
-                        if (openDoor.HasKey(item.name))
-                        {
-                            Debug.Log("Destrancando Porta");
-                            openDoor.UnlockDoor();
-                        }
-                    }
-                    
-                    openDoor.DoorOpen();
-                }
-            }
-
-            isInteracting = false;
+            Debug.Log("Colide com Porta");
+            OpenDoor actualDoor = other.GetComponent<OpenDoor>();
+            door = actualDoor;
+            isInteracting = true;
         }
 
-        if(other.CompareTag("Breakable"))
+        if (other.CompareTag("Breakable"))
         {
-            Breakable breakable = other.GetComponent<Breakable>();
-            Debug.Log("Colide Quebrável");
+            Debug.Log("Colide com Quebrável");
+            Breakable actualBreakable = other.GetComponent<Breakable>();
+            breakObj = actualBreakable;
+            isAttacking = true;
+        }
 
-            if(isAttacking)
+        if (other.CompareTag("Spikes"))
+        {
+            Debug.Log("Colide com spike");
+            Spikes actualSpike = other.GetComponent<Spikes>();
+            int damage = actualSpike.Damage();
+            Debug.LogFormat("Dano {0}", damage.ToString());
+            playerLife -= actualSpike.Damage();
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Chest"))
+        {
+            OpenChest actualChest = other.GetComponent<OpenChest>();
+            Debug.Log("Saindo do Baú");
+            if (chest == actualChest)
             {
-                breakable.LifeBreak(10);
-
-                if(breakable.GetLifeBreak() <= 0)
-                {
-                    breakable.Break();
-                }
+                chest = null;
+                isInteracting = false;
             }
+        }
 
-            isAttacking = false;
+        if (other.CompareTag("Door"))
+        {
+            OpenDoor actualDoor = other.GetComponent<OpenDoor>();
+            Debug.Log("Saindo da Porta");
+            if (door == actualDoor)
+            {
+                door = null;
+                isInteracting = false;
+            }
+        }
+
+        if (other.CompareTag("Breakable"))
+        {
+            Breakable actualBreakable = other.GetComponent<Breakable>();
+            Debug.Log("Saindo do Quebrável");
+            if (breakObj == actualBreakable)
+            {
+                breakObj = null;
+                isInteracting = false;
+            }
         }
     }
 
@@ -215,8 +165,111 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("IsOnGround", false);
     }
 
-    private void PlayerAttack()
+    private void InteractToChest()
+    {
+        if (chest)
+        {
+            chest.OpenChestDoor();
+
+            if (chest.ChestOpened())
+            {
+                foreach (GameObject item in chest.ItensInside())
+                {
+                    inventory.Add(item);
+                }
+
+                goldPlayer += chest.ChestGold();
+            }
+
+            chest.ChestClean();
+        }
+
+    }
+
+    private void InteractToDoor()
+    {
+        if (door)
+        {
+            Debug.Log("Tentando abrir porta");
+            door.DoorOpen();
+
+            if (door.DoorIsLocked())
+            {
+                Debug.Log("Porta Trancada");
+                foreach (GameObject item in inventory)
+                {
+                    Debug.Log("Varrendo Inventário");
+                    if (door.HasKey(item.name))
+                    {
+                        Debug.Log("Destrancando Porta");
+                        door.UnlockDoor();
+                    }
+                }
+
+                door.DoorOpen();
+            }
+        }
+    }
+
+    private void Attack()
     {
         playerAnimator.SetTrigger("Attack");
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit) && breakObj)
+        {
+            breakObj.LifeBreak(10);
+        }
+    }
+
+    private void Walk()
+    {
+        float fowardInput = Input.GetAxis("Vertical");
+        Vector3 moveDirection = transform.forward * fowardInput;
+        Vector3 moveFoward = rb.position + moveDirection * speed * Time.deltaTime;
+        rb.MovePosition(moveFoward);
+    }
+
+    private void Rotate()
+    {
+        float sideInput = Input.GetAxis("Horizontal");
+        Quaternion deltaRotation = Quaternion.Euler(angleRotation * sideInput * Time.deltaTime);
+        rb.MoveRotation(rb.rotation * deltaRotation);
+    }
+
+    private void AnimatePlayer()
+    {
+        if (Input.GetKey(KeyCode.W))
+        {
+            playerAnimator.SetBool("Walk", true);
+
+            if (Input.GetKey(KeyCode.W) && playerAnimator.GetBool("WalkBack"))
+            {
+                playerAnimator.SetBool("WalkToBack", true);
+            }
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            playerAnimator.SetBool("WalkBack", true);
+
+            if (Input.GetKey(KeyCode.S) && playerAnimator.GetBool("Walk"))
+            {
+                playerAnimator.SetBool("WalkToBack", false);
+            }
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            playerAnimator.SetBool("Walk", true);
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            playerAnimator.SetBool("Walk", true);
+        }
+        else
+        {
+            playerAnimator.SetBool("Walk", false);
+            playerAnimator.SetBool("WalkBack", false);
+            playerAnimator.SetBool("WalkToBack", false);
+
+        }
     }
 }

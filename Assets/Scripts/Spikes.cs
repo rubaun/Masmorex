@@ -26,20 +26,20 @@ public class Spikes : MonoBehaviour
 
     IEnumerator StartSpike()
     {
-        if (turnOn && spike.transform.position.y < 0)
+        if (turnOn && spike.transform.position.y <= 0)
         {
-            spike.transform.position = spike.transform.position + new Vector3(0, speed * 1 * Time.deltaTime, 0);
+            spike.transform.localPosition = new Vector3(0, 0, 0);
             
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(2f);
             
             turnOn = false;
         }
 
-        else if(!turnOn && spike.transform.position.y > -2.0f)
+        else if(!turnOn && spike.transform.position.y >= -2.0f)
         {
-            spike.transform.position = spike.transform.position + new Vector3(0, -2 * Time.deltaTime, 0) ;
+            spike.transform.localPosition = new Vector3(0, -2, 0) ;
 
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(3f);
 
             turnOn = true;
         }
