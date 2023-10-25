@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     private OpenChest chest;
     private OpenDoor door;
     private Breakable breakObj;
+    private float startSpeed;
     [SerializeField]
     private int goldPlayer;
     [SerializeField]
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         angleRotation = new Vector3(0, 90, 0);
         playerLife = 100;
+        startSpeed = speed;
     }
 
     // Update is called once per frame
@@ -48,6 +50,8 @@ public class PlayerController : MonoBehaviour
         Rotate();
 
         AnimatePlayer();
+
+        SpeedRun();
 
         //Movimento e Animação do Pulo
         if (Input.GetKey(KeyCode.Space) && isOnGround)
@@ -79,6 +83,15 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("IsOnGround", true);
             isOnGround = true;
         }
+
+        if (collision.gameObject.CompareTag("Spikes"))
+        {
+            Debug.Log("Colide com spike");
+            Spikes actualSpike = collision.gameObject.GetComponent<Spikes>();
+            int damage = actualSpike.Damage();
+            Debug.LogFormat("Dano {0}", damage.ToString());
+            playerLife -= actualSpike.Damage();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -107,14 +120,14 @@ public class PlayerController : MonoBehaviour
             isAttacking = true;
         }
 
-        if (other.CompareTag("Spikes"))
-        {
-            Debug.Log("Colide com spike");
-            Spikes actualSpike = other.GetComponent<Spikes>();
-            int damage = actualSpike.Damage();
-            Debug.LogFormat("Dano {0}", damage.ToString());
-            playerLife -= actualSpike.Damage();
-        }
+        //if (other.CompareTag("Spikes"))
+        //{
+        //    Debug.Log("Colide com spike");
+        //    Spikes actualSpike = other.GetComponent<Spikes>();
+        //    int damage = actualSpike.Damage();
+        //    Debug.LogFormat("Dano {0}", damage.ToString());
+        //    playerLife -= actualSpike.Damage();
+        //}
     }
 
     private void OnTriggerExit(Collider other)
@@ -203,6 +216,7 @@ public class PlayerController : MonoBehaviour
                     {
                         Debug.Log("Destrancando Porta");
                         door.UnlockDoor();
+                        inventory.Remove(item);
                     }
                 }
 
@@ -270,6 +284,18 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("WalkBack", false);
             playerAnimator.SetBool("WalkToBack", false);
 
+        }
+    }
+
+    private void SpeedRun()
+    {
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            speed = 10;
+        }
+        else
+        {
+            speed = startSpeed;
         }
     }
 }

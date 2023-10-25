@@ -56,7 +56,7 @@ public class PlayerTeste : MonoBehaviour
         }
 
         //Interagir
-        if (Input.GetKey(KeyCode.E) && isInteracting)
+        if (Input.GetKeyDown(KeyCode.E) && isInteracting)
         {
             playerAnimator.SetTrigger("Interact");
             InteractToChest();
@@ -77,6 +77,15 @@ public class PlayerTeste : MonoBehaviour
         {
             playerAnimator.SetBool("IsOnGround", true);
             isOnGround = true;
+        }
+
+        if (collision.gameObject.CompareTag("Spikes"))
+        {
+            Debug.Log("Colide com spike");
+            Spikes actualSpike = collision.gameObject.GetComponent<Spikes>();
+            int damage = actualSpike.Damage();
+            Debug.LogFormat("Dano {0}", damage.ToString());
+            playerLife -= actualSpike.Damage();
         }
     }
 
@@ -104,15 +113,6 @@ public class PlayerTeste : MonoBehaviour
             Breakable actualBreakable = other.GetComponent<Breakable>();
             breakObj = actualBreakable;
             isAttacking = true;
-        }
-
-        if (other.CompareTag("Spikes"))
-        {
-            Debug.Log("Colide com spike");
-            Spikes actualSpike = other.GetComponent<Spikes>();
-            int damage = actualSpike.Damage();
-            Debug.LogFormat("Dano {0}", damage.ToString());
-            playerLife -= actualSpike.Damage();
         }
     }
 
@@ -147,7 +147,7 @@ public class PlayerTeste : MonoBehaviour
             if(breakObj == actualBreakable)
             {
                 breakObj = null;
-                isInteracting = false;
+                isAttacking = false;
             }
         }
     }
@@ -271,4 +271,6 @@ public class PlayerTeste : MonoBehaviour
 
         }
     }
+
+    
 }
