@@ -1,10 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class OpenDoor : MonoBehaviour
 {
+    private AudioSource m_Source;
+    [SerializeField]
+    private AudioClip openning;
+    [SerializeField]
+    private AudioClip locked;
     [SerializeField]
     private GameObject door;
     [SerializeField]
@@ -22,6 +28,8 @@ public class OpenDoor : MonoBehaviour
     void Start()
     {
         doorAnim = door.GetComponent<Animator>();
+        this.AddComponent<AudioSource>();
+        m_Source = GetComponent<AudioSource>();
     }
 
     public void DoorOpen()
@@ -30,6 +38,10 @@ public class OpenDoor : MonoBehaviour
         {
             doorAnim.SetTrigger("OpenDoor");
             doorAnim.SetBool("DoorOpen", true);
+            if (!m_Source.isPlaying)
+            {
+                m_Source.PlayOneShot(locked, 0.3f);
+            }
             Debug.Log("Porta Trancada");
         }
         else if (!open && !isLocked)
@@ -37,6 +49,10 @@ public class OpenDoor : MonoBehaviour
             doorAnim.SetBool("HasKey", true);
             doorAnim.SetTrigger("OpenDoor");
             doorAnim.SetBool("DoorOpen", true);
+            if(!m_Source.isPlaying)
+            {
+                m_Source.PlayOneShot(openning, 0.3f);
+            }
             Debug.Log("Abrindo Fechada");
         }
         else if(open)

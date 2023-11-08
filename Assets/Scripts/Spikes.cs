@@ -1,9 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Spikes : MonoBehaviour
 {
+    private AudioSource m_Source;
+    private BoxCollider m_Collider;
+    [SerializeField]
+    private AudioClip hitting;
     [SerializeField]
     private int damage;
     [SerializeField]
@@ -13,10 +18,21 @@ public class Spikes : MonoBehaviour
     [SerializeField]
     private bool turnOn;
 
+    private void Start()
+    {
+        this.AddComponent<AudioSource>();
+        m_Source = GetComponent<AudioSource>();
+        m_Source.rolloffMode = AudioRolloffMode.Linear;
+        m_Source.maxDistance = 20f;
+        m_Source.minDistance = 0;
+        m_Source.spatialBlend = 1.0f;
+        StartCoroutine(StartSpike());
+    }
+
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(StartSpike());
+        
     }
 
     public int Damage()
@@ -26,23 +42,28 @@ public class Spikes : MonoBehaviour
 
     IEnumerator StartSpike()
     {
+        yield return new WaitForSeconds(3.0f);
+
+        m_Source.PlayOneShot(hitting, 1.5f);
+
         if (turnOn && spike.transform.position.y <= 0)
         {
             spike.transform.localPosition = new Vector3(0, 0, 0);
-            
-            yield return new WaitForSeconds(2f);
-            
+
             turnOn = false;
         }
-
         else if(!turnOn && spike.transform.position.y >= -2.0f)
         {
-            spike.transform.localPosition = new Vector3(0, -2, 0) ;
-
-            yield return new WaitForSeconds(3f);
+            spike.transform.localPosition = new Vector3(0, -2, 0);
 
             turnOn = true;
         }
-        
+
+        //if (!m_Source.isPlaying)
+        //{
+        //    m_Source.PlayOneShot(hitting, 1.5f);
+        //}
+
+        StartCoroutine(StartSpike());
     }
 }

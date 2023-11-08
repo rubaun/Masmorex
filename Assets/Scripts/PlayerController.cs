@@ -15,6 +15,13 @@ public class PlayerController : MonoBehaviour
     private OpenDoor door;
     private Breakable breakObj;
     private float startSpeed;
+    private AudioSource player;
+    [SerializeField]
+    private AudioClip passo;
+    [SerializeField]
+    private AudioClip attack;
+    [SerializeField] 
+    private AudioClip jump;
     [SerializeField]
     private int goldPlayer;
     [SerializeField]
@@ -35,6 +42,7 @@ public class PlayerController : MonoBehaviour
     {
         playerAnimator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        player = GetComponent<AudioSource>();
         angleRotation = new Vector3(0, 90, 0);
         playerLife = 100;
         startSpeed = speed;
@@ -52,26 +60,34 @@ public class PlayerController : MonoBehaviour
         AnimatePlayer();
 
         SpeedRun();
-
+        //Joystick1Button0 => A
         //Movimento e Animação do Pulo
-        if (Input.GetKey(KeyCode.Space) && isOnGround)
+        if (Input.GetKey(KeyCode.Space) && isOnGround || Input.GetKey(KeyCode.Joystick1Button0) && isOnGround)
         {
             JumpMove();
             JumpAnimation();
+            if (!player.isPlaying)
+            {
+                player.PlayOneShot(jump);
+            }
         }
-
+        //Joystick1Button0 => X
         //Interagir
-        if (Input.GetKey(KeyCode.E) && isInteracting)
+        if (Input.GetKey(KeyCode.E) && isInteracting || Input.GetKey(KeyCode.Joystick1Button1) && isInteracting)
         {
             playerAnimator.SetTrigger("Interact");
             InteractToChest();
             InteractToDoor();
         }
-
+        //Joystick1Button1 => B
         //Atacar
-        if (Input.GetMouseButtonDown(0) && isAttacking)
+        if (Input.GetMouseButtonDown(0) && isAttacking || Input.GetKey(KeyCode.Joystick1Button2) && isAttacking)
         {
             Attack();
+            if (!player.isPlaying)
+            {
+                player.PlayOneShot(attack);
+            }
         }
 
     }
@@ -84,14 +100,14 @@ public class PlayerController : MonoBehaviour
             isOnGround = true;
         }
 
-        if (collision.gameObject.CompareTag("Spikes"))
-        {
-            Debug.Log("Colide com spike");
-            Spikes actualSpike = collision.gameObject.GetComponent<Spikes>();
-            int damage = actualSpike.Damage();
-            Debug.LogFormat("Dano {0}", damage.ToString());
-            playerLife -= actualSpike.Damage();
-        }
+        //if (collision.gameObject.CompareTag("Spikes"))
+        //{
+        //    Debug.Log("Colide com spike");
+        //    Spikes actualSpike = collision.gameObject.GetComponent<Spikes>();
+        //    int damage = actualSpike.Damage();
+        //    Debug.LogFormat("Dano {0}", damage.ToString());
+        //    playerLife -= actualSpike.Damage();
+        //}
     }
 
     private void OnTriggerEnter(Collider other)
@@ -120,14 +136,14 @@ public class PlayerController : MonoBehaviour
             isAttacking = true;
         }
 
-        //if (other.CompareTag("Spikes"))
-        //{
-        //    Debug.Log("Colide com spike");
-        //    Spikes actualSpike = other.GetComponent<Spikes>();
-        //    int damage = actualSpike.Damage();
-        //    Debug.LogFormat("Dano {0}", damage.ToString());
-        //    playerLife -= actualSpike.Damage();
-        //}
+        if (other.CompareTag("Spikes"))
+        {
+            Debug.Log("Colide com spike");
+            Spikes actualSpike = other.GetComponent<Spikes>();
+            int damage = actualSpike.Damage();
+            Debug.LogFormat("Dano {0}", damage.ToString());
+            playerLife -= actualSpike.Damage();
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -227,10 +243,11 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-        playerAnimator.SetTrigger("Attack");
+        
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit) && breakObj)
-        {
+        {   
+            playerAnimator.SetTrigger("Attack");
             breakObj.LifeBreak(10);
         }
     }
@@ -252,31 +269,56 @@ public class PlayerController : MonoBehaviour
 
     private void AnimatePlayer()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) || Input.GetAxis("Vertical") > 0)
         {
             playerAnimator.SetBool("Walk", true);
+            if(!player.isPlaying)
+            {
+                player.PlayOneShot(passo, 0.3f);
+            }
+            
 
             if (Input.GetKey(KeyCode.W) && playerAnimator.GetBool("WalkBack"))
             {
                 playerAnimator.SetBool("WalkToBack", true);
+                if (!player.isPlaying)
+                {
+                    player.PlayOneShot(passo, 0.3f);
+                }
             }
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S) || Input.GetAxis("Vertical") < 0)
         {
             playerAnimator.SetBool("WalkBack", true);
+            if (!player.isPlaying)
+            {
+                player.PlayOneShot(passo, 0.3f);
+            }
 
             if (Input.GetKey(KeyCode.S) && playerAnimator.GetBool("Walk"))
             {
                 playerAnimator.SetBool("WalkToBack", false);
+                if (!player.isPlaying)
+                {
+                    player.PlayOneShot(passo, 0.3f);
+                }
             }
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) || Input.GetAxis("Horizontal") < 0)
         {
             playerAnimator.SetBool("Walk", true);
+            if (!player.isPlaying)
+            {
+                player.PlayOneShot(passo, 0.3f);
+            }
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D) || Input.GetAxis("Horizontal") > 0)
         {
             playerAnimator.SetBool("Walk", true);
+            if (!player.isPlaying)
+            {
+                player.PlayOneShot(passo, 0.3f);
+            }
         }
         else
         {
