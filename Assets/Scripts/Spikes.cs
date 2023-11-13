@@ -23,8 +23,8 @@ public class Spikes : MonoBehaviour
         this.AddComponent<AudioSource>();
         m_Source = GetComponent<AudioSource>();
         m_Source.rolloffMode = AudioRolloffMode.Linear;
-        m_Source.maxDistance = 20f;
-        m_Source.minDistance = 0;
+        m_Source.maxDistance = 10.0f;
+        m_Source.minDistance = 2.5f;
         m_Source.spatialBlend = 1.0f;
         StartCoroutine(StartSpike());
     }
@@ -44,7 +44,7 @@ public class Spikes : MonoBehaviour
     {
         yield return new WaitForSeconds(3.0f);
 
-        m_Source.PlayOneShot(hitting, 1.5f);
+        m_Source.PlayOneShot(hitting, 1.0f);
 
         if (turnOn && spike.transform.position.y <= 0)
         {
@@ -58,11 +58,6 @@ public class Spikes : MonoBehaviour
 
             turnOn = true;
         }
-
-        //if (!m_Source.isPlaying)
-        //{
-        //    m_Source.PlayOneShot(hitting, 1.5f);
-        //}
 
         StartCoroutine(StartSpike());
     }

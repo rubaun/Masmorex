@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
             Attack();
             if (!player.isPlaying)
             {
-                player.PlayOneShot(attack);
+                player.PlayOneShot(attack, 0.5f);
             }
         }
 
@@ -274,7 +274,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("Walk", true);
             if(!player.isPlaying)
             {
-                player.PlayOneShot(passo, 0.3f);
+                player.PlayOneShot(passo, 0.2f);
             }
             
 
@@ -283,7 +283,7 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetBool("WalkToBack", true);
                 if (!player.isPlaying)
                 {
-                    player.PlayOneShot(passo, 0.3f);
+                    player.PlayOneShot(passo, 0.2f);
                 }
             }
         }
@@ -292,7 +292,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("WalkBack", true);
             if (!player.isPlaying)
             {
-                player.PlayOneShot(passo, 0.3f);
+                player.PlayOneShot(passo, 0.2f);
             }
 
             if (Input.GetKey(KeyCode.S) && playerAnimator.GetBool("Walk"))
@@ -300,7 +300,7 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetBool("WalkToBack", false);
                 if (!player.isPlaying)
                 {
-                    player.PlayOneShot(passo, 0.3f);
+                    player.PlayOneShot(passo, 0.2f);
                 }
             }
         }
@@ -309,7 +309,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("Walk", true);
             if (!player.isPlaying)
             {
-                player.PlayOneShot(passo, 0.3f);
+                player.PlayOneShot(passo, 0.2f);
             }
         }
         else if (Input.GetKey(KeyCode.D) || Input.GetAxis("Horizontal") > 0)
@@ -317,7 +317,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("Walk", true);
             if (!player.isPlaying)
             {
-                player.PlayOneShot(passo, 0.3f);
+                player.PlayOneShot(passo, 0.2f);
             }
         }
         else
