@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -16,6 +17,13 @@ public class PlayerController : MonoBehaviour
     private Breakable breakObj;
     private float startSpeed;
     private AudioSource player;
+    private bool isPaused;
+    [SerializeField]
+    private GameObject pauseScreen;
+    [SerializeField]
+    private GameObject imageKey;
+    [SerializeField]
+    private TextMeshProUGUI coins;
     [SerializeField]
     private AudioClip passo;
     [SerializeField]
@@ -46,10 +54,12 @@ public class PlayerController : MonoBehaviour
         angleRotation = new Vector3(0, 90, 0);
         playerLife = 100;
         startSpeed = speed;
+        imageKey.SetActive(false);
+        isPaused = false;
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         //Andar 
         Walk();
@@ -90,6 +100,32 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        coins.text = goldPlayer.ToString();
+
+
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            isPaused = !isPaused;
+            if (isPaused)
+            {
+                pauseScreen.SetActive(true);
+                Time.timeScale = 0f;
+            }
+            else
+            {
+                pauseScreen.SetActive(false);
+                Time.timeScale = 1f;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q) && isPaused)
+        {
+            Application.Quit();
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -205,6 +241,10 @@ public class PlayerController : MonoBehaviour
                 foreach (GameObject item in chest.ItensInside())
                 {
                     inventory.Add(item);
+                    if(item.tag == "Key")
+                    {
+                        imageKey.SetActive(true);
+                    }
                 }
 
                 goldPlayer += chest.ChestGold();
@@ -233,6 +273,7 @@ public class PlayerController : MonoBehaviour
                         Debug.Log("Destrancando Porta");
                         door.UnlockDoor();
                         inventory.Remove(item);
+                        imageKey.SetActive(false);
                     }
                 }
 
@@ -333,7 +374,7 @@ public class PlayerController : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.LeftShift))
         {
-            speed = 10;
+            speed = 8;
         }
         else
         {
