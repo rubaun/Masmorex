@@ -14,8 +14,6 @@ public class Spikes : MonoBehaviour
     [SerializeField]
     private float speed;
     [SerializeField]
-    private GameObject spike;
-    [SerializeField]
     private bool turnOn;
 
     private void Start()
@@ -46,15 +44,15 @@ public class Spikes : MonoBehaviour
 
         m_Source.PlayOneShot(hitting, 1.0f);
 
-        if (turnOn && spike.transform.position.y <= 0)
+        if (turnOn && transform.position.y <= 0)
         {
-            spike.transform.localPosition = new Vector3(0, 0, 0);
+            transform.localPosition = new Vector3(0, 0, 0);
 
             turnOn = false;
         }
-        else if(!turnOn && spike.transform.position.y >= -2.0f)
+        else if(!turnOn && transform.position.y >= -2.0f)
         {
-            spike.transform.localPosition = new Vector3(0, -2, 0);
+            transform.localPosition = new Vector3(0, -2, 0);
 
             turnOn = true;
         }

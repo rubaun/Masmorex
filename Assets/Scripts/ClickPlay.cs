@@ -28,4 +28,12 @@ public class ClickPlay : MonoBehaviour
     {
         SceneManager.LoadScene("Stage1");
     }
+
+    private void OnMouseOver()
+    {
+        click = true;
+    }
+
+
+
 }

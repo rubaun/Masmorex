@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,8 +19,12 @@ public class PlayerController : MonoBehaviour
     private float startSpeed;
     private AudioSource player;
     private bool isPaused;
+    private bool isAlive;
+    private bool animaDeath;
     [SerializeField]
     private GameObject pauseScreen;
+    [SerializeField]
+    private GameObject deathScreen;
     [SerializeField]
     private GameObject imageKey;
     [SerializeField]
@@ -56,11 +61,15 @@ public class PlayerController : MonoBehaviour
         startSpeed = speed;
         imageKey.SetActive(false);
         isPaused = false;
+        isAlive = true;
+        animaDeath = true;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        WalkMobo();
+
         //Andar 
         Walk();
 
@@ -125,6 +134,16 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q) && isPaused)
         {
             Application.Quit();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R) && !isAlive)
+        {
+            SceneManager.LoadScene("Title");
+        }
+
+        if (playerLife <= 0)
+        {
+            isAlive = false;
         }
     }
 
@@ -295,17 +314,24 @@ public class PlayerController : MonoBehaviour
 
     private void Walk()
     {
-        float fowardInput = Input.GetAxis("Vertical");
-        Vector3 moveDirection = transform.forward * fowardInput;
-        Vector3 moveFoward = rb.position + moveDirection * speed * Time.deltaTime;
-        rb.MovePosition(moveFoward);
+        if(isAlive)
+        {
+            float fowardInput = Input.GetAxis("Vertical");
+            Vector3 moveDirection = transform.forward * fowardInput;
+            Vector3 moveFoward = rb.position + moveDirection * speed * Time.deltaTime;
+            rb.MovePosition(moveFoward);
+        }
+        
     }
 
     private void Rotate()
     {
-        float sideInput = Input.GetAxis("Horizontal");
-        Quaternion deltaRotation = Quaternion.Euler(angleRotation * sideInput * Time.deltaTime);
-        rb.MoveRotation(rb.rotation * deltaRotation);
+        if (isAlive)
+        {
+            float sideInput = Input.GetAxis("Horizontal");
+            Quaternion deltaRotation = Quaternion.Euler(angleRotation * sideInput * Time.deltaTime);
+            rb.MoveRotation(rb.rotation * deltaRotation);
+        }
     }
 
     private void AnimatePlayer()
@@ -368,6 +394,13 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("WalkToBack", false);
 
         }
+
+        if(!isAlive && animaDeath)
+        {
+            playerAnimator.SetTrigger("Death");
+            animaDeath = false;
+            deathScreen.SetActive(true);
+        }
     }
 
     private void SpeedRun()
@@ -381,4 +414,38 @@ public class PlayerController : MonoBehaviour
             speed = startSpeed;
         }
     }
+
+    public bool PlayerIsAlive()
+    {
+        return isAlive;
+    }
+
+    public int PlayerLife()
+    {
+        return playerLife;
+    }
+
+    public void WalkMobo()
+    {
+        if (Input.touchCount > 0)
+        {
+            Touch toque = Input.GetTouch(0);
+
+            if (toque.phase == TouchPhase.Moved)
+            {
+                // Obtém a posição do toque anterior e atual.
+                Vector2 posicaoAnterior = toque.position - toque.deltaPosition;
+                Vector3 direcao = new Vector3(toque.deltaPosition.x, 0, toque.deltaPosition.y);
+
+                // Converte a direção para a orientação do mundo.
+                direcao = Camera.main.transform.TransformDirection(direcao);
+                direcao.y = 0; // Mantém a movimentação no plano XZ.
+
+                // Move o personagem na direção determinada pelo toque.
+                transform.Translate(direcao * 2.0f * Time.deltaTime);
+            }
+
+        }
+    }
 }
+
