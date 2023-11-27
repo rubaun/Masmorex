@@ -8,6 +8,7 @@ public class WalkEnemy : MonoBehaviour
     private int destPoint = 0;
     private NavMeshAgent agent;
     private Animator animator;
+    private BoxCollider b_collider;
     [SerializeField]
     private List<Transform> goal = new List<Transform>();
 
@@ -16,6 +17,7 @@ public class WalkEnemy : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        b_collider = GetComponent<BoxCollider>();
         agent.autoBraking = false;
         StartCoroutine(GoToNextPoint());
     }
@@ -23,32 +25,59 @@ public class WalkEnemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!agent.pathPending && agent.remainingDistance < 0.5f)
-        {
-            
-        }
-
-        if(!agent.isStopped)
-        {
-            animator.SetBool("Moving", true);
-        }
-        else
-        {
-            animator.SetBool("Moving", false);
-        }
+        
     }
 
     IEnumerator GoToNextPoint()
     {
         if (!agent.pathPending && agent.remainingDistance < 0.5f)
         {
+            animator.SetBool("Moving", true);
+            animator.SetFloat("velx", 0.244f);
+            animator.SetFloat("vely", -0.326f);
+
             agent.destination = goal[destPoint].position;
 
             destPoint = (destPoint + 1) % goal.Count;
         }
-        
+
         yield return new WaitForSeconds(3.0f);
 
-        StartCoroutine(GoToNextPoint());
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("Player"))
+        {
+            StopCoroutine(GoToNextPoint());
+            Debug.Log("Trigger Inimigo");
+        }
+
+        
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if(other.gameObject.CompareTag("Player"))
+        {
+            animator.SetBool("Moving", true);
+            animator.SetFloat("velx", -0.166f);
+            animator.SetFloat("vely", -0.331f);
+        }
+
+        if (other.gameObject.CompareTag("Finish"))
+        {
+            animator.SetBool("Moving", false);
+            Debug.Log("Trigger Destination");
+            StartCoroutine(GoToNextPoint());
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.gameObject.CompareTag("Player"))
+        {
+            StartCoroutine(GoToNextPoint());
+        }
     }
 }

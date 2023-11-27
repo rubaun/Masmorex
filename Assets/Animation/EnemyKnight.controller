@@ -91,25 +91,25 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Blend
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: velx
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: vely
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -159,7 +159,7 @@ BlendTree:
   - serializedVersion: 2
     m_Motion: {fileID: 7060811993321468294, guid: 72036ba1f2701c743832200930ccee3f, type: 3}
     m_Threshold: 0
-    m_Position: {x: 0.024, y: -0.251}
+    m_Position: {x: 0.244, y: -0.326}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: Blend
@@ -175,7 +175,23 @@ BlendTree:
   - serializedVersion: 2
     m_Motion: {fileID: 455867200774271528, guid: 72036ba1f2701c743832200930ccee3f, type: 3}
     m_Threshold: 0
-    m_Position: {x: 0.392, y: 0.365}
+    m_Position: {x: 0.385, y: 0.363}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: Blend
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7624655660056751624, guid: 72036ba1f2701c743832200930ccee3f, type: 3}
+    m_Threshold: 0
+    m_Position: {x: -0.166, y: -0.331}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: Blend
+    m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 0}
+    m_Threshold: 0
+    m_Position: {x: 0, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: Blend
